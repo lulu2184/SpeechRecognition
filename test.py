@@ -60,6 +60,10 @@ if __name__ == "__main__":
 	pl.show()
 
 	start, end = array[3]
+
+	waveData = waveData[start:end]
+	mfcc_feature = calc_mfcc(waveData)
+
 	f = wave.open(r"out.wav", "wb")
 
 	f.setparams(params)
