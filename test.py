@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	time2 = np.arange(0, len(volume11)) * step * 1.0 / framerate
 
 	# (start, end) = rd.range_detect(waveData)
-	array = rd.range_detect(waveData)
+	array = rd.range_detect(waveData, 1)
 
 	pl.subplot(3, 1, 1)
 	pl.plot(time, waveData, color="black")
