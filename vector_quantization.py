@@ -43,15 +43,19 @@ class VQset:
 			dlast = dnow
 			dnow, choices = self.__distance_sum_choice()
 
+	def quantization(self, feature):
+		dmin = self.calculate_dist(feature, self.centers[0])
+		choice = 1
+		for (i, center) in enumerate(self.centers):
+			d = self.calculate_dist(feature, center)
+			if dmin > d:
+				dmin = d
+				choice = i
+		return (dmin, choice)
+
 	def __distance_sum_choice(self):
 		for sample in self.training_set:
-			dmin = self.calculate_dist(sample, self.centers[0])
-			choice = 1
-			for (i, center) in enumerate(self.centers):
-				d = self.calculate_dist(sample, center)
-				if dmin > d:
-					dmin = d
-					choice = i
+			dmin, choice = self.quantization(sample)
 			choices.append(choice)
 			dist_sum += dmin
 		return (dist_sum, choice)
