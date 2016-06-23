@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
+import math
+import wave
+import sys
+import hmm
+import pickle
+import numpy as np
+import pylab as pl
+import range_detect as rd
+import calc_mfcc as mfcc
+import vector_quantization as vq
 
 
 words = [u'数字', u'语音', u'信号', u'分析', u'识别',
@@ -22,7 +32,14 @@ def walk_dir(path):
 	return voice_list
 
 def read_voice_file(fname):
-	
+	fw = wave.open(fname, 'r')
+	params = fw.getparams()
+	strData = fw.readframes(nframes)
+	orgData = np.fromstring(strData, dtype = np.int16)
+	waveData = orgData - np.mean(orgData);
+	waveData = waveData * 1.0 / max(abs(waveData))
+	fw.close()
+	return (waveData, params)
 
 if __name__ == "__main__":
 	voice_list = walk_dir('dataset')
@@ -33,5 +50,35 @@ if __name__ == "__main__":
 		train_set.append(ele[:sp])
 		test_set.append(ele[sp:])
 	for (i, word) in enumerate(words):
+		vqs = vq.VQset();
+		features_set = []
 		for fname in train_set[i]:
-			waveData = read_voice_file(fname)
+			waveData, params = read_voice_file(fname)
+			framerate = params[2]
+			start, end = rd.range_detect(waveData, 0)
+			waveData = waveData[start:end]
+			features = mfcc.feature_extractor(waveData, framerate)
+			vqs.add_samples(features)
+			features_set.append(features)
+
+		observations = []
+		for features in features_set:
+			observation = []
+			for feature in features:
+				observation.append(vqs.quantization(feature))
+			observations.append(observation)
+
+		model = hmm.HMM()
+		model.pi = np.array()
+		model.A = np.array()
+		model.B = np.array()
+		model.train(observations, 0.0001)
+		picklestring = pickle.dump(model)
+		dumpfile = open('train_result/' + word, "w")
+		dumpfile.write(picklestring)
+
+
+
+
+
+

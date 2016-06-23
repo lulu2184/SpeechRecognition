@@ -10,12 +10,19 @@ class VQset:
 	def __init__(self, dimension):
 		self.dimension = dimension
 
+	def __init__(self):
+
+	def set_dimension(self, x):
+		self.dimension = x
+
 	def add_samples(self, samples):
 		for sample in samples:
 			self.add_sample(sample)
 
 	def add_sample(self, sample):
-		if len(sample) != dimension:
+		if self.dimension == 0:
+			self.dimension = len(sample)
+		if len(sample) != self.dimension:
 			print "Incorrect dimension while adding sample"
 			sys.exit()
 		self.training_set.append(sample)
