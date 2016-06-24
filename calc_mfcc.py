@@ -46,9 +46,9 @@ def feature_extractor(waveData, framerate):
 	step = 64
 	frameSize = 256
 	wlen = len(waveData)
-	frameNum = int(math.ceil(wlen * 1.0 / step))
+	frameNum = int(math.ceil((wlen - frameSize) * 1.0 / step))
 	feature_array = []
-	for i in range(frameNum):
+	for i in range(frameNum - 1):
 		feature = calc_mfcc(waveData[np.arange(i * step, min(i * step + frameSize, wlen))], framerate)
 		feature_array.append(feature)
 	# calculate Delta mfcc

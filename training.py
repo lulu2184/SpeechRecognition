@@ -66,6 +66,8 @@ if __name__ == "__main__":
 			vqs.add_samples(features)
 			features_set.append(features)
 
+		vqs.training()
+
 		observations = []
 		for features in features_set:
 			observation = []
