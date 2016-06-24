@@ -37,10 +37,14 @@ def range_detect(waveData, type):
 	volume = calVolume(waveData, frameSize, step)
 	zeros = calZeros(waveData, frameSize, step)
 
-	z0 = 0.25
-	z1 = 0.35
-	mh = 0.2
-	ml = 0.1
+	maxv = max(volume)
+	avz = np.median(zeros)
+	print avz
+
+	z0 = 0.1 + avz 
+	z1 = 0.2 + avz
+	mh = 0.10 * maxv
+	ml = 0.03 * maxv
 	wlen = len(waveData)
 
 	mh_array = [i for (i, w) in enumerate(volume) if w > mh]
@@ -48,16 +52,18 @@ def range_detect(waveData, type):
 	end = max(mh_array)
 	array = [(start * step, end * step + frameSize)]
 
-	start = min([i for (i, z) in enumerate(zeros) if z > z1] + [start])
-	end = max([i for (i, z) in enumerate(zeros) if z > z1] + [end])
+	length = len(volume)
+
+	start = min([i for (i, z) in enumerate(zeros) if z > z1 and i + 20 > start and i < start] + [start - 10])
+	end = max([i for (i, z) in enumerate(zeros) if z > z1 and i - 20 < end and i > end] + [end + 10])
 	array.append((start * step, end * step + frameSize))
 
-	start = max([i for (i, w) in enumerate(volume) if w < ml and i < start] + [0])
-	end = min([i for (i, w) in enumerate(volume) if w < ml and i > end] + [wlen])
+	start = max([i for (i, w) in enumerate(volume) if w < ml and i + 10 > start and i < start] + [start - 5])
+	end = min([i for (i, w) in enumerate(volume) if w < ml and i - 10 < end and i > end] + [end + 5])
 	array.append((start * step, end * step + frameSize))
 
-	start = max([i for (i, z) in enumerate(zeros) if z < z0 and i < start] + [0])
-	end = min([i for (i, z) in enumerate(zeros) if z < z0 and i > end] + [wlen])
+	start = max([i for (i, z) in enumerate(zeros) if z < z0 and i < start and i + 10 > start] + [start - 5])
+	end = min([i for (i, z) in enumerate(zeros) if z < z0 and i > end and i - 10 < end] + [end + 5])
 	array.append((start * step, end * step + frameSize))
 
 	start = start * step

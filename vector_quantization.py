@@ -54,6 +54,9 @@ class VQset:
 				choice = i
 		return (dmin, choice)
 
+	def calculate_dist(self, v1, v2):
+		return np.square(v1 - v2)
+
 	def __distance_sum_choice(self):
 		for sample in self.training_set:
 			dmin, choice = self.quantization(sample)

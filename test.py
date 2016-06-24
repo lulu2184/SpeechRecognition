@@ -18,6 +18,8 @@ if __name__ == "__main__":
 	orgData = np.fromstring(strData, dtype = np.int16)
 	waveData = orgData - np.mean(orgData);
 	waveData = waveData * 1.0 / max(abs(waveData))
+	waveData = waveData[400:-400]
+	nframes = len(waveData)
 	fw.close()
 
 	frameSize = 256
@@ -62,7 +64,7 @@ if __name__ == "__main__":
 	start, end = array[3]
 
 	waveData = waveData[start:end]
-	mfcc_feature = calc_mfcc(waveData)
+	# mfcc_feature = calc_mfcc(waveData)
 
 	f = wave.open(r"out.wav", "wb")
 

@@ -45,7 +45,7 @@ def read_voice_file(fname):
 	return (waveData, params)
 
 if __name__ == "__main__":
-	voice_list = walk_dir('dataset')
+	voice_list = walk_dir('dataset/14307130166')
 	train_set = []
 	test_set = []
 	for ele in voice_list:
@@ -56,7 +56,9 @@ if __name__ == "__main__":
 		vqs = vq.VQset();
 		features_set = []
 		for fname in train_set[i]:
+			print fname
 			waveData, params = read_voice_file(fname)
+			waveData = waveData[400:-400]
 			framerate = params[2]
 			start, end = rd.range_detect(waveData, 0)
 			waveData = waveData[start:end]
