@@ -31,7 +31,7 @@ def calEnergy(waveData, frameSize, step):
 		energy[i] = np.sum(np.square(curFrame)) / frameSize
 	return energy
 
-def range_detect(waveData):
+def range_detect(waveData, type):
 	frameSize = 256
 	step = 64
 	volume = calVolume(waveData, frameSize, step)
@@ -52,14 +52,17 @@ def range_detect(waveData):
 	end = max([i for (i, z) in enumerate(zeros) if z > z1] + [end])
 	array.append((start * step, end * step + frameSize))
 
-	start = max([i for (i, w) in enumerate(volume) if w < ml and i < start])
-	end = min([i for (i, w) in enumerate(volume) if w < ml and i > end])
+	start = max([i for (i, w) in enumerate(volume) if w < ml and i < start] + [0])
+	end = min([i for (i, w) in enumerate(volume) if w < ml and i > end] + [wlen])
 	array.append((start * step, end * step + frameSize))
 
-	start = max([i for (i, z) in enumerate(zeros) if z < z0 and i < start])
-	end = min([i for (i, z) in enumerate(zeros) if z < z0 and i > end])
+	start = max([i for (i, z) in enumerate(zeros) if z < z0 and i < start] + [0])
+	end = min([i for (i, z) in enumerate(zeros) if z < z0 and i > end] + [wlen])
 	array.append((start * step, end * step + frameSize))
 
 	start = start * step
 	end = end * step + frameSize
-	return array
+	if type == 1:
+		return array
+	else:
+		return (start, end)

@@ -11,6 +11,7 @@ class VQset:
 		self.dimension = dimension
 
 	def __init__(self):
+		pass
 
 	def set_dimension(self, x):
 		self.dimension = x
