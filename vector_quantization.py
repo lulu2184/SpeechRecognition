@@ -3,7 +3,7 @@ import numpy as np
 
 class VQset:
 	training_set = []
-	n_clusters = 256
+	n_clusters = 20
 	dimension = 0
 	centers = []
 	d_thred = 1.0
@@ -74,8 +74,9 @@ class VQset:
 		for (sample, choice) in zip(self.training_set, choices):
 			counter[choice] += 1.0
 			centers[choice] += sample
-		self.centers = [center / c for (center, c) in zip(centers, counter)]
-
+		for (i, (center, c)) in enumerate(zip(centers, counter)):
+			if c > 0:
+				self.centers[i] = center / c
 
 
 

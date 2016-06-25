@@ -3,12 +3,15 @@ import os
 import math
 import wave
 import sys
-import hmm
+# import hmm
 import pickle
 import numpy as np
 import pylab as pl
 import range_detect as rd
 import calc_mfcc as mfcc
+from hmmlearn import hmm
+import yahmm
+import dill
 # import mfcc
 import vector_quantization as vq
 
@@ -72,21 +75,45 @@ if __name__ == "__main__":
 		for features in features_set:
 			observation = []
 			for feature in features:
-				observation.append(vqs.quantization(feature))
+				dmin, choice = vqs.quantization(feature)
+				observation.append(choice)
 			observations.append(observation)
 
-		model = hmm.HMM()
-		model.pi = np.zeros(20)
-		model.pi[0] = 1
-		model.A = np.zeros((20, 20))
-		for i in range(19):
-			model.A[i][i] = 0.5
-			model.A[i][i + 1] = 0.5
-		model.A[19][19] = 1
+		# model = hmm.HMM()
+		# model.pi = np.zeros(20)
+		# model.pi[0] = 1
+		# model.A = np.zeros((20, 20))
+		# for i in range(19):
+		# 	model.A[i][i] = 0.5
+		# 	model.A[i][i + 1] = 0.5
+		# model.A[19][19] = 1
 
-		model.B = [[1.0/20 for j in range(vqs.n_clusters)] for i in range(20)]
-		model.train(observations, 0.0001)
-		picklestring = pickle.dump(model)
+		# model.B = [[1.0/20 for j in range(vqs.n_clusters)] for i in range(20)]
+		# model.train(observations, 0.0001)
+
+		n_state = 10
+		n_features = vqs.n_clusters
+		model = yahmm.Model()
+		state_set = []
+		for i in range(n_state):
+			state_set.append(yahmm.State(
+				yahmm.DiscreteDistribution({i : 1.0/n_features for i in range(n_features)}),
+				name = str(i)))
+		for state in state_set:
+			model.add_state(state)
+
+		for i in range(n_state - 1):
+			model.add_transition(state_set[i], state_set[i], 0.5)
+			model.add_transition(state_set[i], state_set[i + 1], 0.5)
+		model.add_transition(state_set[n_state - 1], state_set[n_state - 1], 1.0)
+		model.add_transition(model.start, state_set[0], 1.0)
+		model.bake()
+		model.train(observations, algorithm='baum-welch')
+
+		# model = hmm.MultinomialHMM(n_components = 10)
+		# model.fit(observations)
+
+		picklestring = dill.dumps(model)
 		dumpfile = open('train_result/' + word, "w")
 		dumpfile.write(picklestring)
 
