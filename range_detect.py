@@ -68,6 +68,8 @@ def range_detect(waveData, type):
 
 	start = start * step
 	end = end * step + frameSize
+	start = max(start, 0)
+	end = min(wlen, end)
 	if type == 1:
 		return array
 	else:

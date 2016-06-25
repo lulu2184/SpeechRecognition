@@ -3,7 +3,7 @@ import numpy as np
 
 class VQset:
 	training_set = []
-	n_clusters = 20
+	n_clusters = 10
 	dimension = 0
 	centers = []
 	d_thred = 1.0
@@ -11,7 +11,9 @@ class VQset:
 		self.dimension = dimension
 
 	def __init__(self):
-		pass
+		self.centers = []
+		self.training_set = []
+		self.dimension = 0
 
 	def set_dimension(self, x):
 		self.dimension = x
