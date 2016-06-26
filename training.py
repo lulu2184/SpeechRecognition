@@ -3,16 +3,12 @@ import os
 import math
 import wave
 import sys
-# import hmm
-import pickle
 import numpy as np
 import pylab as pl
 import range_detect as rd
 import calc_mfcc as mfcc
-from hmmlearn import hmm
 import yahmm
 import dill
-# import mfcc
 import vector_quantization as vq
 
 
@@ -48,7 +44,7 @@ def read_voice_file(fname):
 	return (waveData, params)
 
 def get_file_list(dir):
-	voice_list = walk_dir(str)
+	voice_list = walk_dir(dir)
 	train_set = []
 	test_set = []
 	for ele in voice_list:
@@ -166,6 +162,7 @@ def test(hmm):
 			continue	
 		total = 0
 		right = 0
+		ff = open('train_result/test_result_' + str(i), 'w')
 
 		features = []
 		for fname in test_set[i]:
@@ -183,13 +180,15 @@ def test(hmm):
 				for feature in features:
 					dmin, choice = vv[j].quantization(feature)
 					observation.append(choice)
-				print observation
+				# print observation
 				value = hmm[j].log_probability(observation)
 				print j, ' ', value
+				ff.write(str(j) + ' ' + str(value) + '\n')
 				if value > maxv:
 					maxv = value
 					tag = j
 			print words[tag], maxv
+			ff.write(words[tag] + str(maxv) + '\n')
 
 			if i == tag:
 				right += 1
@@ -198,15 +197,19 @@ def test(hmm):
 		total_all += total
 		right_all += right
 		print word, ' PASSED: ', float(right)/total * 100, '%'
+		ff.write(word + ' PASSED: ' + str(float(right)/total * 100) + '%\n')
 
 	print 'all PASSED: ', float(right)/total * 100, '%'
 
-
 if __name__ == "__main__":
-	# get_file_list('dataset')
+	# get_file_list('data')
+	# print "file list finished"
 	# pre_proc_train()
+	# print "range detect finished"
 	# vq_train()
+	# print "vq training finished"
 	hmm = hmm_train()
+	print "hmm training finished"
 	test(hmm)
 
 

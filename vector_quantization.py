@@ -37,10 +37,14 @@ class VQset:
 			dmin = [min(v1, v2) for (v1, v2) in zip(dmin, sample)]
 		dmax = np.array(dmax)
 		dmin = np.array(dmin)
-		for i in range(self.n_clusters):
-			center = np.random.rand(self.dimension) * (dmax - dmin) + dmin
-			center = [int(v) for v in center]
-			self.centers.append(center)
+		# for i in range(self.n_clusters):
+		# 	center = np.random.rand(self.dimension) * (dmax - dmin) + dmin
+		# 	center = [int(v) for v in center]
+		# 	self.centers.append(center)
+		choices = []
+		for sample in self.training_set:
+			choices.append(max(int(np.random.rand(1) * self.n_clusters - 0.01), 0))
+		self.__update_centers(choices) 
 		dlast = -1e100 
 		dnow, choices = self.__distance_sum_choice()
 		while abs((dnow - dlast) / dnow) > self.d_thred:
@@ -78,7 +82,8 @@ class VQset:
 			centers[choice] += sample
 		for (i, (center, c)) in enumerate(zip(centers, counter)):
 			if c > 0:
-				self.centers[i] = center / c
+				centers[i] = center / c
+		self.centers = centers
 
 
 
