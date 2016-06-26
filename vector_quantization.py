@@ -3,7 +3,7 @@ import numpy as np
 
 class VQset:
 	training_set = []
-	n_clusters = 10
+	n_clusters = 50
 	dimension = 0
 	centers = []
 	d_thred = 1.0
