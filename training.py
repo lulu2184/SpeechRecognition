@@ -137,8 +137,11 @@ def hmm_train():
 		model.add_transition(state_set[n_state - 1], state_set[n_state - 1], 1.0)
 		model.add_transition(model.start, state_set[0], 1.0)
 		model.bake()
-		model.train(observations, algorithm='baum-welch')
+		for kk in range(10):
+			model.train(observations, algorithm='baum-welch')
 		# mm.append(model)
+
+		#model.states[k].distribution?
 
 		hh.append(model)
 	return hh
@@ -167,6 +170,7 @@ def test(hmm):
 		features = []
 		for fname in test_set[i]:
 			print fname
+			ff.write(fname + '\n')
 			waveData, params = read_voice_file(fname)
 			waveData = waveData[400:-400]
 			framerate = params[2]
@@ -190,7 +194,8 @@ def test(hmm):
 			for v in logp:
 				if v > -1e100:
 					minp = min(minp, v)
-			logp = [(v - minp) / (maxp - minp) for v in logp]
+			if maxp != minp:
+				logp = [(v - minp) / (maxp - minp) for v in logp]
 			maxd = max(dist)
 			mind = min(dist)
 			dist = [(mind - v) / (maxd - mind) for v in dist]
@@ -199,7 +204,7 @@ def test(hmm):
 			for j in range(20):
 				print j, ' ', dist[j], ' ', logp[j]
 				ff.write(str(j) + ' ' + str(dist[j]) + ' ' + str(logp[j]) + '\n')
-				value = dist[j] + logp[j]
+				value = dist[j] + logp[j] * 0.8
 				if value > maxv:
 					maxv = value
 					tag = j
@@ -220,12 +225,12 @@ def test(hmm):
 if __name__ == "__main__":
 	if os.path.exists('train_result/mel_group'):
 		os.remove('train_result/mel_group')
-	get_file_list('data')
-	print "file list finished"
-	pre_proc_train()
-	print "range detect finished"
-	vq_train()
-	print "vq training finished"
+	# get_file_list('data')
+	# print "file list finished"
+	# pre_proc_train()
+	# print "range detect finished"
+	# vq_train()
+	# print "vq training finished"
 	hmm = hmm_train()
 	print "hmm training finished"
 	test(hmm)
