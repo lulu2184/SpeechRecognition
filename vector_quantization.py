@@ -3,10 +3,10 @@ import numpy as np
 
 class VQset:
 	training_set = []
-	n_clusters = 32
+	n_clusters = 50
 	dimension = 0
 	centers = []
-	d_thred = 1.0
+	d_thred = 0.001
 	def __init__(self, dimension):
 		self.dimension = dimension
 
@@ -48,19 +48,26 @@ class VQset:
 		dlast = -1e100 
 		dnow, choices = self.__distance_sum_choice()
 		while abs((dnow - dlast) / dnow) > self.d_thred:
+			print 'vq:', (dnow - dlast) / dnow
 			self.__update_centers(choices)
 			dlast = dnow
 			dnow, choices = self.__distance_sum_choice()
 
 	def quantization(self, feature):
-		dmin = self.calculate_dist(feature, self.centers[0])
-		choice = 1
-		for (i, center) in enumerate(self.centers):
-			d = self.calculate_dist(feature, center)
-			if dmin > d:
-				dmin = d
-				choice = i
-		return (dmin, choice)
+	    nodes = np.asarray(self.centers)
+	    dist_2 = np.sum((nodes - feature)**2, axis=1)
+	    nn = np.argmin(dist_2)
+	    return (self.calculate_dist(self.centers[nn], feature) ,nn)
+
+	# def quantization(self, feature):
+	# 	dmin = self.calculate_dist(feature, self.centers[0])
+	# 	choice = 1
+	# 	for (i, center) in enumerate(self.centers):
+	# 		d = self.calculate_dist(feature, center)
+	# 		if dmin > d:
+	# 			dmin = d
+	# 			choice = i
+	# 	return (dmin, choice)
 
 	def calculate_dist(self, v1, v2):
 		return np.sum(np.square(v1 - v2))
