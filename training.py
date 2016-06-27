@@ -48,7 +48,7 @@ def get_file_list(dir):
 	train_set = []
 	test_set = []
 	for ele in voice_list:
-		sp = len(ele) / 3 * 2
+		sp = int(len(ele) * 0.8) 
 		train_set.append(ele[:sp])
 		test_set.append(ele[sp:])
 	trainstr = dill.dumps(train_set)
@@ -174,21 +174,37 @@ def test(hmm):
 			waveData = waveData[start:end]
 			features = mfcc.feature_extractor(waveData, framerate)
 
-			maxv = -1e100
+			logp = []
+			dist = []
 			for j in range(20):
 				observation = []
+				dist.append(0.0)
 				for feature in features:
 					dmin, choice = vv[j].quantization(feature)
 					observation.append(choice)
+					dist[j] += dmin
 				# print observation
-				value = hmm[j].log_probability(observation)
-				print j, ' ', value
-				ff.write(str(j) + ' ' + str(value) + '\n')
+				logp.append(hmm[j].log_probability(observation))
+			maxp = max(logp)
+			minp = 0
+			for v in logp:
+				if v > -1e100:
+					minp = min(minp, v)
+			logp = [(v - minp) / (maxp - minp) for v in logp]
+			maxd = max(dist)
+			mind = min(dist)
+			dist = [(mind - v) / (maxd - mind) for v in dist]
+
+			maxv = -1e100
+			for j in range(20):
+				print j, ' ', dist[j], ' ', logp[j]
+				ff.write(str(j) + ' ' + str(dist[j]) + ' ' + str(logp[j]) + '\n')
+				value = dist[j] + logp[j]
 				if value > maxv:
 					maxv = value
 					tag = j
 			print words[tag], maxv
-			ff.write(words[tag] + str(maxv) + '\n')
+			ff.write(words[tag] + ' ' + str(maxv) + '\n')
 
 			if i == tag:
 				right += 1
@@ -199,15 +215,17 @@ def test(hmm):
 		print word, ' PASSED: ', float(right)/total * 100, '%'
 		ff.write(word + ' PASSED: ' + str(float(right)/total * 100) + '%\n')
 
-	print 'all PASSED: ', float(right)/total * 100, '%'
+	print 'all PASSED: ', float(right_all)/total_all * 100, '%'
 
 if __name__ == "__main__":
-	# get_file_list('data')
-	# print "file list finished"
-	# pre_proc_train()
-	# print "range detect finished"
-	# vq_train()
-	# print "vq training finished"
+	if os.path.exists('train_result/mel_group'):
+		os.remove('train_result/mel_group')
+	get_file_list('data')
+	print "file list finished"
+	pre_proc_train()
+	print "range detect finished"
+	vq_train()
+	print "vq training finished"
 	hmm = hmm_train()
 	print "hmm training finished"
 	test(hmm)

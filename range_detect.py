@@ -42,7 +42,7 @@ def range_detect(waveData, type):
 	print avz
 
 	z0 = 0.1 + avz 
-	z1 = 0.2 + avz
+	z1 = 0.15 + avz
 	mh = 0.10 * maxv
 	ml = 0.03 * maxv
 	wlen = len(waveData)
